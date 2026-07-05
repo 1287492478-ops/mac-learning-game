@@ -401,6 +401,7 @@
             margin: 20px;
             text-align: center;
             animation: pulse 2s ease-in-out infinite;
+            position: relative;
         }
 
         @keyframes pulse {
@@ -425,6 +426,53 @@
             font-size: 14px;
             color: rgba(255, 255, 255, 0.7);
             margin-top: 10px;
+        }
+
+        /* 尝试次数显示 */
+        .attempts-display {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            display: flex;
+            gap: 6px;
+        }
+
+        .attempt-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .attempt-dot.used {
+            background: #f87171;
+        }
+
+        .attempt-dot.remaining {
+            background: #4ade80;
+        }
+
+        /* 跳过按钮 */
+        .skip-btn {
+            display: none;
+            margin-top: 15px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 8px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .skip-btn:hover {
+            background: rgba(255, 255, 255, 0.3);
+        }
+
+        .skip-btn.show {
+            display: inline-block;
         }
 
         /* 反馈消息 */
@@ -924,9 +972,15 @@
         <section class="game-area" id="gameArea">
             <!-- 任务提示 -->
             <div class="task-banner" id="taskBanner">
+                <div class="attempts-display" id="attemptsDisplay">
+                    <div class="attempt-dot remaining"></div>
+                    <div class="attempt-dot remaining"></div>
+                    <div class="attempt-dot remaining"></div>
+                </div>
                 <div class="task-title" id="taskTitle">任务</div>
                 <div class="task-desc" id="taskDesc">请按出正确的快捷键</div>
                 <div class="task-hint" id="taskHint">💡 提示：Command键在空格键旁边</div>
+                <button class="skip-btn" id="skipBtn" onclick="skipTask()">跳过这题 →</button>
             </div>
 
             <!-- 模拟Mac桌面 -->
@@ -1079,6 +1133,8 @@
         let totalScore = 0;
         let completedLevels = new Set();
         let pressedKeys = new Set();
+        let failedAttempts = 0;  // 新增：失败尝试次数
+        const MAX_ATTEMPTS = 3;  // 最大尝试次数
 
         // 任务数据
         const tasks = {
@@ -1285,10 +1341,17 @@
         // 显示任务
         function showTask() {
             const task = tasks[currentLevel][currentTask];
+            failedAttempts = 0;  // 重置失败次数
 
             document.getElementById('taskTitle').textContent = task.title;
             document.getElementById('taskDesc').textContent = task.desc;
             document.getElementById('taskHint').textContent = task.hint;
+
+            // 重置尝试次数显示
+            updateAttemptsDisplay();
+
+            // 隐藏跳过按钮
+            document.getElementById('skipBtn').classList.remove('show');
 
             // 根据任务类型设置界面
             if (task.type === 'keyboard') {
@@ -1445,8 +1508,91 @@
 
         // 处理错误
         function handleWrong() {
-            showFeedback(false, '再试一次！💪', '这个操作不对哦，看看提示再试试？');
-            setTimeout(hideFeedback, 1500);
+            failedAttempts++;
+            updateAttemptsDisplay();
+
+            if (failedAttempts >= MAX_ATTEMPTS) {
+                // 3次失败后显示答案提示
+                showHint();
+            } else {
+                const remaining = MAX_ATTEMPTS - failedAttempts;
+                showFeedback(false, '再试一次！💪', `还剩 ${remaining} 次机会，${remaining === 1 ? '下次会显示答案哦' : '加油！'}`);
+
+                // 第2次失败后显示跳过按钮
+                if (failedAttempts >= 2) {
+                    document.getElementById('skipBtn').classList.add('show');
+                }
+
+                setTimeout(hideFeedback, 1500);
+            }
+        }
+
+        // 更新尝试次数显示
+        function updateAttemptsDisplay() {
+            const dots = document.querySelectorAll('.attempt-dot');
+            dots.forEach((dot, index) => {
+                if (index < failedAttempts) {
+                    dot.className = 'attempt-dot used';
+                } else {
+                    dot.className = 'attempt-dot remaining';
+                }
+            });
+        }
+
+        // 跳过任务
+        function skipTask() {
+            showHint();
+        }
+
+        // 显示提示
+        function showHint() {
+            const task = tasks[currentLevel][currentTask];
+            let hintText = '';
+
+            if (task.type === 'keyboard') {
+                // 显示快捷键答案
+                const keyNames = task.keys.map(k => {
+                    const keyNameMap = {
+                        'command': '⌘ Command',
+                        'control': '⌃ Control',
+                        'option': '⌥ Option',
+                        'shift': '⇧ Shift',
+                        'escape': 'Esc',
+                        'delete': '⌫ Delete',
+                        'return': '↩ Return',
+                        'tab': '⇥ Tab',
+                        'space': 'Space',
+                        'caps': '⇪ Caps Lock',
+                        'fn': 'fn'
+                    };
+                    return keyNameMap[k] || k.toUpperCase();
+                });
+                hintText = `💡 答案是：${keyNames.join(' + ')}`;
+            } else if (task.type === 'click') {
+                if (task.target === 'close') {
+                    hintText = '💡 答案是：点击窗口左上角的红色按钮 🔴';
+                } else if (task.target === 'minimize') {
+                    hintText = '💡 答案是：点击窗口左上角的黄色按钮 🟡';
+                } else if (task.target === 'maximize') {
+                    hintText = '💡 答案是：点击窗口左上角的绿色按钮 🟢';
+                } else if (task.target === 'finder') {
+                    hintText = '💡 答案是：点击下方的访达图标 😊';
+                }
+            } else if (task.type === 'rightclick') {
+                hintText = '💡 答案是：在文件上点击右键（或双指轻点触控板）';
+            }
+
+            showFeedback(false, '💡 答案提示', hintText);
+
+            // 添加"知道了"按钮
+            const feedback = document.getElementById('feedback');
+            const btn = feedback.querySelector('.feedback-btn');
+            btn.textContent = '知道了，继续';
+            btn.onclick = () => {
+                hideFeedback();
+                btn.textContent = '继续';
+                btn.onclick = hideFeedback;
+            };
         }
 
         // 获取解释
