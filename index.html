@@ -13,49 +13,549 @@
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
-            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             min-height: 100vh;
-            color: #fff;
-            overflow-x: hidden;
+            overflow: hidden;
+        }
+
+        /* 粒子效果容器 */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1000;
+        }
+
+        .particle {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            animation: particle-fall 1s ease-out forwards;
+        }
+
+        @keyframes particle-fall {
+            0% {
+                transform: translateY(0) rotate(0deg);
+                opacity: 1;
+            }
+            100% {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        /* 主容器 */
+        .container {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
         }
 
         /* 头部 */
         .header {
             text-align: center;
-            padding: 40px 20px 20px;
+            margin-bottom: 30px;
+            z-index: 10;
         }
 
         .header h1 {
-            font-size: 32px;
+            font-size: 36px;
             font-weight: 700;
+            color: #fff;
             margin-bottom: 10px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
         }
 
         .header p {
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 关卡选择 */
+        .levels {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            max-width: 900px;
+            width: 100%;
+            z-index: 10;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .level-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .level-card:hover::before {
+            left: 100%;
+        }
+
+        .level-card:hover {
+            transform: translateY(-10px) scale(1.02);
+            border-color: #ffd700;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .level-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+            display: block;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .level-title {
+            font-size: 22px;
+            font-weight: 600;
+            color: #fff;
+            margin-bottom: 10px;
+        }
+
+        .level-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.8);
+            line-height: 1.6;
+        }
+
+        .level-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #ffd700;
+            color: #333;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        /* 游戏区域 */
+        .game-area {
+            display: none;
+            width: 100%;
+            max-width: 1000px;
+            z-index: 10;
+        }
+
+        /* 模拟Mac桌面 */
+        .mac-desktop {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* 菜单栏 */
+        .menu-bar {
+            background: rgba(30, 30, 30, 0.9);
+            backdrop-filter: blur(20px);
+            padding: 8px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .menu-left {
+            display: flex;
+            gap: 20px;
+        }
+
+        .menu-item {
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            cursor: default;
+        }
+
+        .menu-right {
+            display: flex;
+            gap: 15px;
+            color: rgba(255, 255, 255, 0.6);
+            font-size: 12px;
+        }
+
+        /* 窗口 */
+        .window {
+            background: #2d2d2d;
+            border-radius: 12px;
+            margin: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .window-header {
+            background: #3d3d3d;
+            padding: 12px 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: default;
+        }
+
+        .window-btn {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            position: relative;
+        }
+
+        .window-btn:hover {
+            transform: scale(1.1);
+        }
+
+        .window-btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            opacity: 0;
+            transition: opacity 0.2s ease;
+        }
+
+        .window-btn:hover::after {
+            opacity: 1;
+        }
+
+        .btn-close {
+            background: #ff5f57;
+        }
+
+        .btn-close:hover::after {
+            content: '×';
+            color: #660000;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .btn-minimize {
+            background: #febc2e;
+        }
+
+        .btn-minimize:hover::after {
+            content: '−';
+            color: #665500;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .btn-maximize {
+            background: #28c840;
+        }
+
+        .btn-maximize:hover::after {
+            content: '+';
+            color: #006600;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .window-title {
+            flex: 1;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.8);
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .window-content {
+            padding: 30px;
+            min-height: 200px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        /* 键盘区域 */
+        .keyboard {
+            background: #1a1a1a;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .keyboard-row {
+            display: flex;
+            justify-content: center;
+            gap: 6px;
+        }
+
+        .key {
+            background: linear-gradient(180deg, #4a4a4a 0%, #3a3a3a 100%);
+            border: 1px solid #555;
+            border-radius: 6px;
+            padding: 8px 12px;
+            min-width: 40px;
+            text-align: center;
+            color: #fff;
+            font-size: 12px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.15s ease;
+            box-shadow: 0 4px 0 #222;
+            position: relative;
+        }
+
+        .key:hover {
+            background: linear-gradient(180deg, #5a5a5a 0%, #4a4a4a 100%);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 0 #222;
+        }
+
+        .key:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #222;
+        }
+
+        .key.active {
+            background: linear-gradient(180deg, #667eea 0%, #5a6fd6 100%);
+            border-color: #764ba2;
+            box-shadow: 0 4px 0 #4a5bc4;
+        }
+
+        .key.correct {
+            background: linear-gradient(180deg, #4ade80 0%, #22c55e 100%);
+            border-color: #16a34a;
+            box-shadow: 0 4px 0 #166534;
+            animation: key-pulse 0.5s ease;
+        }
+
+        .key.wrong {
+            background: linear-gradient(180deg, #f87171 0%, #ef4444 100%);
+            border-color: #dc2626;
+            box-shadow: 0 4px 0 #991b1b;
+            animation: key-shake 0.5s ease;
+        }
+
+        @keyframes key-pulse {
+            0%, 100% { transform: translateY(2px); }
+            50% { transform: translateY(-4px) scale(1.05); }
+        }
+
+        @keyframes key-shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .key-special {
+            min-width: 60px;
+            font-size: 11px;
+        }
+
+        .key-command {
+            min-width: 50px;
             font-size: 16px;
+        }
+
+        .key-space {
+            min-width: 200px;
+        }
+
+        /* 任务提示 */
+        .task-banner {
+            background: rgba(255, 215, 0, 0.2);
+            border: 2px solid #ffd700;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px;
+            text-align: center;
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { box-shadow: 0 0 0 0 rgba(255, 215, 0, 0.4); }
+            50% { box-shadow: 0 0 0 10px rgba(255, 215, 0, 0); }
+        }
+
+        .task-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .task-desc {
+            font-size: 16px;
+            color: #fff;
+            line-height: 1.6;
+        }
+
+        .task-hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 10px;
+        }
+
+        /* 反馈消息 */
+        .feedback {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            z-index: 100;
+            animation: feedback-in 0.3s ease;
+        }
+
+        @keyframes feedback-in {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.8);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .feedback.show {
+            display: block;
+        }
+
+        .feedback-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        .feedback-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .feedback-text {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
+            line-height: 1.6;
+        }
+
+        .feedback-btn {
+            padding: 14px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .feedback-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .feedback.correct .feedback-title {
+            color: #4ade80;
+        }
+
+        .feedback.wrong .feedback-title {
+            color: #f87171;
+        }
+
+        /* 分数显示 */
+        .score-display {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border-radius: 16px;
+            padding: 16px 24px;
+            z-index: 100;
+            display: none;
+        }
+
+        .score-display.show {
+            display: block;
+        }
+
+        .score-value {
+            font-size: 32px;
+            font-weight: 700;
+            color: #ffd700;
+            text-align: center;
+        }
+
+        .score-label {
+            font-size: 12px;
+            color: rgba(255, 255, 255, 0.6);
+            text-align: center;
         }
 
         /* 进度条 */
         .progress-bar {
-            max-width: 600px;
-            margin: 20px auto;
-            padding: 0 20px;
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 300px;
+            z-index: 100;
+            display: none;
+        }
+
+        .progress-bar.show {
+            display: block;
         }
 
         .progress-track {
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.2);
             border-radius: 10px;
-            height: 12px;
+            height: 8px;
             overflow: hidden;
         }
 
         .progress-fill {
             height: 100%;
-            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(90deg, #4ade80, #22c55e);
             border-radius: 10px;
             transition: width 0.5s ease;
             width: 0%;
@@ -64,669 +564,983 @@
         .progress-text {
             text-align: center;
             margin-top: 8px;
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* 分数显示 */
-        .score-display {
-            text-align: center;
-            margin: 20px 0;
-        }
-
-        .score {
-            font-size: 48px;
-            font-weight: 700;
-            color: #ffd700;
-        }
-
-        .score-label {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-        }
-
-        /* 关卡选择 */
-        .levels {
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 0 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            gap: 20px;
-        }
-
-        .level-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 24px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            border: 2px solid transparent;
-            backdrop-filter: blur(10px);
-        }
-
-        .level-card:hover {
-            transform: translateY(-5px);
-            border-color: #667eea;
-            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
-        }
-
-        .level-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .level-card.locked:hover {
-            transform: none;
-            border-color: transparent;
-            box-shadow: none;
-        }
-
-        .level-icon {
-            font-size: 48px;
-            margin-bottom: 16px;
-        }
-
-        .level-title {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 8px;
-        }
-
-        .level-desc {
-            font-size: 14px;
-            color: rgba(255, 255, 255, 0.6);
-            line-height: 1.5;
-        }
-
-        .level-status {
-            margin-top: 16px;
-            padding: 6px 12px;
-            border-radius: 20px;
             font-size: 12px;
-            font-weight: 600;
-            display: inline-block;
-        }
-
-        .status-new {
-            background: rgba(102, 126, 234, 0.2);
-            color: #667eea;
-        }
-
-        .status-completed {
-            background: rgba(74, 222, 128, 0.2);
-            color: #4ade80;
-        }
-
-        .status-locked {
-            background: rgba(255, 255, 255, 0.1);
-            color: rgba(255, 255, 255, 0.4);
-        }
-
-        /* 游戏区域 */
-        .game-area {
-            display: none;
-            max-width: 800px;
-            margin: 30px auto;
-            padding: 0 20px;
-        }
-
-        .game-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .back-btn {
-            padding: 10px 20px;
-            background: rgba(255, 255, 255, 0.1);
-            border: none;
-            border-radius: 8px;
-            color: #fff;
-            cursor: pointer;
-            font-size: 14px;
-            transition: background 0.3s ease;
-        }
-
-        .back-btn:hover {
-            background: rgba(255, 255, 255, 0.2);
-        }
-
-        .game-title {
-            font-size: 24px;
-            font-weight: 600;
-        }
-
-        .game-score {
-            font-size: 20px;
-            color: #ffd700;
-        }
-
-        /* 问题卡片 */
-        .question-card {
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 16px;
-            padding: 30px;
-            margin-bottom: 20px;
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        .question-number {
-            font-size: 14px;
-            color: #667eea;
-            margin-bottom: 10px;
-        }
-
-        .question-text {
-            font-size: 20px;
-            font-weight: 600;
-            margin-bottom: 20px;
-            line-height: 1.5;
-        }
-
-        .question-hint {
-            font-size: 14px;
             color: rgba(255, 255, 255, 0.6);
-            margin-bottom: 20px;
-            padding: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border-radius: 8px;
-        }
-
-        /* 选项 */
-        .options {
-            display: grid;
-            gap: 12px;
-        }
-
-        .option {
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            cursor: pointer;
-            transition: all 0.3s ease;
-            font-size: 16px;
-            color: #fff;
-        }
-
-        .option:hover {
-            background: rgba(255, 255, 255, 0.1);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .option.correct {
-            background: rgba(74, 222, 128, 0.2);
-            border-color: #4ade80;
-        }
-
-        .option.wrong {
-            background: rgba(248, 113, 113, 0.2);
-            border-color: #f87171;
-        }
-
-        .option.disabled {
-            cursor: not-allowed;
-            opacity: 0.7;
-        }
-
-        /* 反馈消息 */
-        .feedback {
-            display: none;
-            padding: 16px;
-            border-radius: 12px;
-            margin-top: 16px;
-            font-size: 14px;
-            line-height: 1.6;
-        }
-
-        .feedback.correct {
-            background: rgba(74, 222, 128, 0.1);
-            border: 1px solid rgba(74, 222, 128, 0.3);
-            color: #4ade80;
-        }
-
-        .feedback.wrong {
-            background: rgba(248, 113, 113, 0.1);
-            border: 1px solid rgba(248, 113, 113, 0.3);
-            color: #f87171;
-        }
-
-        /* 下一题按钮 */
-        .next-btn {
-            display: none;
-            width: 100%;
-            padding: 16px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            border: none;
-            border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            margin-top: 20px;
-            transition: all 0.3s ease;
-        }
-
-        .next-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
         }
 
         /* 完成页面 */
         .completion {
             display: none;
             text-align: center;
-            padding: 40px 20px;
+            z-index: 10;
+        }
+
+        .completion.show {
+            display: block;
         }
 
         .completion-icon {
             font-size: 80px;
             margin-bottom: 20px;
+            animation: bounce 1s ease infinite;
+        }
+
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-20px); }
         }
 
         .completion-title {
-            font-size: 28px;
+            font-size: 36px;
             font-weight: 700;
+            color: #fff;
             margin-bottom: 10px;
         }
 
         .completion-score {
-            font-size: 48px;
-            color: #ffd700;
+            font-size: 64px;
             font-weight: 700;
+            color: #ffd700;
             margin-bottom: 20px;
         }
 
         .completion-message {
-            font-size: 16px;
-            color: rgba(255, 255, 255, 0.7);
+            font-size: 18px;
+            color: rgba(255, 255, 255, 0.8);
             margin-bottom: 30px;
         }
 
         .completion-btn {
-            padding: 16px 32px;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 16px 40px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
             border: none;
             border-radius: 12px;
-            color: #fff;
-            font-size: 16px;
+            color: #333;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
+            margin: 0 10px;
         }
 
         .completion-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(255, 215, 0, 0.4);
         }
 
-        /* 动画 */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
+        .completion-btn.secondary {
+            background: rgba(255, 255, 255, 0.2);
+            color: #fff;
         }
 
-        .fade-in {
-            animation: fadeIn 0.5s ease;
+        .completion-btn.secondary:hover {
+            background: rgba(255, 255, 255, 0.3);
+            box-shadow: 0 8px 20px rgba(255, 255, 255, 0.2);
+        }
+
+        /* 文件图标 */
+        .file-icon {
+            width: 60px;
+            height: 70px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #fff;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .file-icon:hover {
+            transform: scale(1.1) rotate(-5deg);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .file-icon.selected {
+            border: 3px solid #ffd700;
+            box-shadow: 0 0 20px rgba(255, 215, 0, 0.5);
+        }
+
+        .file-icon.dragging {
+            opacity: 0.5;
+            transform: scale(0.9);
+        }
+
+        /* 文件夹图标 */
+        .folder-icon {
+            width: 60px;
+            height: 50px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 4px 4px 8px 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: #333;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .folder-icon::before {
+            content: '';
+            position: absolute;
+            top: -8px;
+            left: 0;
+            width: 25px;
+            height: 8px;
+            background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%);
+            border-radius: 4px 4px 0 0;
+        }
+
+        .folder-icon:hover {
+            transform: scale(1.1);
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        /* 右键菜单 */
+        .context-menu {
+            display: none;
+            position: absolute;
+            background: #3d3d3d;
+            border-radius: 8px;
+            padding: 8px 0;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            z-index: 50;
+            min-width: 200px;
+        }
+
+        .context-menu.show {
+            display: block;
+            animation: menu-in 0.2s ease;
+        }
+
+        @keyframes menu-in {
+            from {
+                opacity: 0;
+                transform: scale(0.95);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .context-menu-item {
+            padding: 10px 20px;
+            color: #fff;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .context-menu-item:hover {
+            background: #667eea;
+        }
+
+        .context-menu-item.disabled {
+            color: rgba(255, 255, 255, 0.3);
+            cursor: not-allowed;
+        }
+
+        .context-menu-item.disabled:hover {
+            background: transparent;
+        }
+
+        .context-menu-separator {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 8px 0;
+        }
+
+        .shortcut {
+            margin-left: auto;
+            color: rgba(255, 255, 255, 0.5);
+            font-size: 12px;
+        }
+
+        /* 提示框 */
+        .tooltip {
+            position: absolute;
+            background: rgba(0, 0, 0, 0.9);
+            color: #fff;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            pointer-events: none;
+            z-index: 1000;
+            white-space: nowrap;
+        }
+
+        /* 成就徽章 */
+        .badge {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            z-index: 200;
+            display: none;
+            animation: badge-in 0.5s ease;
+        }
+
+        @keyframes badge-in {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.5) rotate(-10deg);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1) rotate(0deg);
+            }
+        }
+
+        .badge.show {
+            display: block;
+        }
+
+        .badge-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .badge-title {
+            font-size: 24px;
+            font-weight: 700;
+            color: #ffd700;
+            margin-bottom: 10px;
+        }
+
+        .badge-desc {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.8);
+            margin-bottom: 20px;
         }
 
         /* 响应式 */
         @media (max-width: 768px) {
-            .header h1 {
-                font-size: 24px;
-            }
-
             .levels {
                 grid-template-columns: 1fr;
             }
 
-            .question-text {
-                font-size: 18px;
+            .header h1 {
+                font-size: 28px;
+            }
+
+            .keyboard {
+                padding: 10px;
+            }
+
+            .key {
+                padding: 6px 8px;
+                min-width: 30px;
+                font-size: 10px;
+            }
+
+            .key-space {
+                min-width: 150px;
             }
         }
     </style>
 </head>
 <body>
-    <!-- 头部 -->
-    <header class="header">
-        <h1>🎮 Mac新手闯关游戏</h1>
-        <p>Windows转Mac必玩，玩一遍就能正常办公</p>
-    </header>
+    <!-- 粒子效果容器 -->
+    <div class="particles" id="particles"></div>
+
+    <!-- 分数显示 -->
+    <div class="score-display" id="scoreDisplay">
+        <div class="score-value" id="scoreValue">0</div>
+        <div class="score-label">得分</div>
+    </div>
 
     <!-- 进度条 -->
-    <div class="progress-bar">
+    <div class="progress-bar" id="progressBar">
         <div class="progress-track">
             <div class="progress-fill" id="progressFill"></div>
         </div>
-        <div class="progress-text" id="progressText">总进度：0/3 关卡</div>
+        <div class="progress-text" id="progressText">0 / 3</div>
     </div>
 
-    <!-- 分数显示 -->
-    <div class="score-display">
-        <div class="score" id="totalScore">0</div>
-        <div class="score-label">总分</div>
+    <!-- 反馈消息 -->
+    <div class="feedback" id="feedback">
+        <div class="feedback-icon" id="feedbackIcon">🎉</div>
+        <div class="feedback-title" id="feedbackTitle">太棒了！</div>
+        <div class="feedback-text" id="feedbackText">你已经掌握了这个技能！</div>
+        <button class="feedback-btn" onclick="hideFeedback()">继续</button>
     </div>
 
-    <!-- 关卡选择 -->
-    <section class="levels" id="levelsSection">
-        <!-- 关卡1 -->
-        <div class="level-card" onclick="startLevel(1)">
-            <div class="level-icon">⌨️</div>
-            <div class="level-title">快捷键大挑战</div>
-            <div class="level-desc">告别Ctrl肌肉记忆，掌握Mac快捷键核心逻辑</div>
-            <div class="level-status status-new">开始挑战</div>
-        </div>
+    <!-- 成就徽章 -->
+    <div class="badge" id="badge">
+        <div class="badge-icon" id="badgeIcon">🏆</div>
+        <div class="badge-title" id="badgeTitle">获得成就！</div>
+        <div class="badge-desc" id="badgeDesc">你已经解锁了新技能</div>
+        <button class="feedback-btn" onclick="hideBadge()">太棒了！</button>
+    </div>
 
-        <!-- 关卡2 -->
-        <div class="level-card" onclick="startLevel(2)">
-            <div class="level-icon">📁</div>
-            <div class="level-title">访达探险记</div>
-            <div class="level-desc">告别资源管理器，玩转Mac文件管理</div>
-            <div class="level-status status-new">开始挑战</div>
-        </div>
+    <!-- 主容器 -->
+    <div class="container">
+        <!-- 头部 -->
+        <header class="header" id="mainHeader">
+            <h1>🎮 Mac新手闯关游戏</h1>
+            <p>Windows转Mac必玩，玩一遍就能正常办公</p>
+        </header>
 
-        <!-- 关卡3 -->
-        <div class="level-card" onclick="startLevel(3)">
-            <div class="level-icon">🪟</div>
-            <div class="level-title">窗口魔术师</div>
-            <div class="level-desc">掌握红绿灯窗口逻辑，告别Windows窗口习惯</div>
-            <div class="level-status status-new">开始挑战</div>
-        </div>
-    </section>
+        <!-- 关卡选择 -->
+        <section class="levels" id="levelsSection">
+            <div class="level-card" onclick="startLevel(1)">
+                <span class="level-badge">基础</span>
+                <span class="level-icon">⌨️</span>
+                <div class="level-title">快捷键大挑战</div>
+                <div class="level-desc">在键盘上按出正确的快捷键<br>告别Ctrl肌肉记忆</div>
+            </div>
 
-    <!-- 游戏区域 -->
-    <section class="game-area" id="gameArea">
-        <div class="game-header">
-            <button class="back-btn" onclick="backToLevels()">← 返回</button>
-            <div class="game-title" id="gameTitle">快捷键大挑战</div>
-            <div class="game-score">得分：<span id="gameScore">0</span></div>
-        </div>
+            <div class="level-card" onclick="startLevel(2)">
+                <span class="level-badge">进阶</span>
+                <span class="level-icon">📁</span>
+                <div class="level-title">访达探险记</div>
+                <div class="level-desc">在模拟的Mac桌面操作文件<br>掌握访达的使用</div>
+            </div>
 
-        <div class="question-card" id="questionCard">
-            <div class="question-number" id="questionNumber">第 1 题</div>
-            <div class="question-text" id="questionText"></div>
-            <div class="question-hint" id="questionHint"></div>
-            <div class="options" id="options"></div>
-            <div class="feedback" id="feedback"></div>
-            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
-        </div>
-    </section>
+            <div class="level-card" onclick="startLevel(3)">
+                <span class="level-badge">高级</span>
+                <span class="level-icon">🪟</span>
+                <div class="level-title">窗口魔术师</div>
+                <div class="level-desc">点击红绿灯按钮<br>理解Mac窗口逻辑</div>
+            </div>
+        </section>
 
-    <!-- 完成页面 -->
-    <section class="completion" id="completion">
-        <div class="completion-icon">🎉</div>
-        <div class="completion-title">恭喜通关！</div>
-        <div class="completion-score" id="completionScore">0</div>
-        <div class="completion-message" id="completionMessage"></div>
-        <button class="completion-btn" onclick="backToLevels()">返回关卡选择</button>
-    </section>
+        <!-- 游戏区域 -->
+        <section class="game-area" id="gameArea">
+            <!-- 任务提示 -->
+            <div class="task-banner" id="taskBanner">
+                <div class="task-title" id="taskTitle">任务</div>
+                <div class="task-desc" id="taskDesc">请按出正确的快捷键</div>
+                <div class="task-hint" id="taskHint">💡 提示：Command键在空格键旁边</div>
+            </div>
+
+            <!-- 模拟Mac桌面 -->
+            <div class="mac-desktop" id="macDesktop">
+                <!-- 菜单栏 -->
+                <div class="menu-bar">
+                    <div class="menu-left">
+                        <span class="menu-item">🍎</span>
+                        <span class="menu-item">访达</span>
+                        <span class="menu-item">文件</span>
+                        <span class="menu-item">编辑</span>
+                    </div>
+                    <div class="menu-right">
+                        <span>🔋 100%</span>
+                        <span>📶</span>
+                        <span>🔍</span>
+                    </div>
+                </div>
+
+                <!-- 窗口 -->
+                <div class="window" id="mainWindow">
+                    <div class="window-header">
+                        <div class="window-btn btn-close" onclick="handleWindowBtn('close')"></div>
+                        <div class="window-btn btn-minimize" onclick="handleWindowBtn('minimize')"></div>
+                        <div class="window-btn btn-maximize" onclick="handleWindowBtn('maximize')"></div>
+                        <div class="window-title">我的文档</div>
+                    </div>
+                    <div class="window-content" id="windowContent">
+                        <!-- 内容会动态变化 -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- 键盘 -->
+            <div class="keyboard" id="keyboard">
+                <div class="keyboard-row">
+                    <div class="key" data-key="`">`</div>
+                    <div class="key" data-key="1">1</div>
+                    <div class="key" data-key="2">2</div>
+                    <div class="key" data-key="3">3</div>
+                    <div class="key" data-key="4">4</div>
+                    <div class="key" data-key="5">5</div>
+                    <div class="key" data-key="6">6</div>
+                    <div class="key" data-key="7">7</div>
+                    <div class="key" data-key="8">8</div>
+                    <div class="key" data-key="9">9</div>
+                    <div class="key" data-key="0">0</div>
+                    <div class="key" data-key="-">-</div>
+                    <div class="key" data-key="=">=</div>
+                    <div class="key key-special" data-key="delete">Delete</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key key-special" data-key="tab">Tab</div>
+                    <div class="key" data-key="q">Q</div>
+                    <div class="key" data-key="w">W</div>
+                    <div class="key" data-key="e">E</div>
+                    <div class="key" data-key="r">R</div>
+                    <div class="key" data-key="t">T</div>
+                    <div class="key" data-key="y">Y</div>
+                    <div class="key" data-key="u">U</div>
+                    <div class="key" data-key="i">I</div>
+                    <div class="key" data-key="o">O</div>
+                    <div class="key" data-key="p">P</div>
+                    <div class="key" data-key="[">[</div>
+                    <div class="key" data-key="]">]</div>
+                    <div class="key" data-key="\">\</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key key-special" data-key="caps">Caps</div>
+                    <div class="key" data-key="a">A</div>
+                    <div class="key" data-key="s">S</div>
+                    <div class="key" data-key="d">D</div>
+                    <div class="key" data-key="f">F</div>
+                    <div class="key" data-key="g">G</div>
+                    <div class="key" data-key="h">H</div>
+                    <div class="key" data-key="j">J</div>
+                    <div class="key" data-key="k">K</div>
+                    <div class="key" data-key="l">L</div>
+                    <div class="key" data-key=";">;</div>
+                    <div class="key" data-key="'">'</div>
+                    <div class="key key-special" data-key="return">Return</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key key-special" data-key="shift">Shift</div>
+                    <div class="key" data-key="z">Z</div>
+                    <div class="key" data-key="x">X</div>
+                    <div class="key" data-key="c">C</div>
+                    <div class="key" data-key="v">V</div>
+                    <div class="key" data-key="b">B</div>
+                    <div class="key" data-key="n">N</div>
+                    <div class="key" data-key="m">M</div>
+                    <div class="key" data-key=",">,</div>
+                    <div class="key" data-key=".">.</div>
+                    <div class="key" data-key="/">/</div>
+                    <div class="key key-special" data-key="shift">Shift</div>
+                </div>
+                <div class="keyboard-row">
+                    <div class="key key-special" data-key="fn">fn</div>
+                    <div class="key key-special" data-key="control">Control</div>
+                    <div class="key key-special" data-key="option">Option</div>
+                    <div class="key key-command" data-key="command">⌘</div>
+                    <div class="key key-space" data-key="space">Space</div>
+                    <div class="key key-command" data-key="command">⌘</div>
+                    <div class="key key-special" data-key="option">Option</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 完成页面 -->
+        <section class="completion" id="completion">
+            <div class="completion-icon">🎉</div>
+            <div class="completion-title">恭喜通关！</div>
+            <div class="completion-score" id="completionScore">0</div>
+            <div class="completion-message" id="completionMessage">你已经掌握了这个技能！</div>
+            <button class="completion-btn" onclick="nextLevel()">下一关</button>
+            <button class="completion-btn secondary" onclick="backToLevels()">返回首页</button>
+        </section>
+    </div>
+
+    <!-- 右键菜单 -->
+    <div class="context-menu" id="contextMenu">
+        <div class="context-menu-item" onclick="handleContextAction('copy')">
+            📋 复制
+            <span class="shortcut">⌘C</span>
+        </div>
+        <div class="context-menu-item" onclick="handleContextAction('paste')">
+            📄 粘贴
+            <span class="shortcut">⌘V</span>
+        </div>
+        <div class="context-menu-item" onclick="handleContextAction('cut')">
+            ✂️ 剪切
+            <span class="shortcut">⌘X</span>
+        </div>
+        <div class="context-menu-separator"></div>
+        <div class="context-menu-item" onclick="handleContextAction('info')">
+            ℹ️ 显示简介
+            <span class="shortcut">⌘I</span>
+        </div>
+        <div class="context-menu-item" onclick="handleContextAction('delete')">
+            🗑️ 移到废纸篓
+            <span class="shortcut">⌘Delete</span>
+        </div>
+    </div>
 
     <script>
         // 游戏状态
-        let totalScore = 0;
         let currentLevel = 0;
-        let currentQuestion = 0;
-        let levelScore = 0;
+        let currentTask = 0;
+        let score = 0;
+        let totalScore = 0;
         let completedLevels = new Set();
+        let pressedKeys = new Set();
 
-        // 关卡数据
-        const levels = {
-            1: {
-                title: '快捷键大挑战',
-                icon: '⌨️',
-                questions: [
-                    {
-                        question: '在Mac上，复制文件的快捷键是什么？',
-                        hint: '💡 提示：Mac的Command键相当于Windows的Ctrl键',
-                        options: ['Ctrl + C', 'Command + C', 'Option + C', 'Shift + C'],
-                        correct: 1,
-                        explanation: '在Mac上，Command (⌘) 键相当于Windows的Ctrl键。所以复制是 Command + C，而不是 Ctrl + C。'
-                    },
-                    {
-                        question: '在Mac上，粘贴文件的快捷键是什么？',
-                        hint: '💡 提示：Command键在空格键旁边',
-                        options: ['Ctrl + V', 'Command + V', 'Option + V', 'Shift + V'],
-                        correct: 1,
-                        explanation: '粘贴是 Command + V。Mac上几乎所有快捷键都用Command键，而不是Ctrl键。'
-                    },
-                    {
-                        question: '在Mac上，撤销操作的快捷键是什么？',
-                        hint: '💡 提示：和Windows的逻辑一样，只是换了键',
-                        options: ['Ctrl + Z', 'Command + Z', 'Option + Z', 'Shift + Z'],
-                        correct: 1,
-                        explanation: '撤销是 Command + Z。记住：Mac的Command = Windows的Ctrl。'
-                    },
-                    {
-                        question: '在Mac上，截图的快捷键是什么？',
-                        hint: '💡 提示：Mac有专门的截图快捷键',
-                        options: ['Print Screen', 'Command + Shift + 3', 'Command + S', 'Ctrl + Print Screen'],
-                        correct: 1,
-                        explanation: 'Mac截图是 Command + Shift + 3（全屏）或 Command + Shift + 4（区域截图）。'
-                    },
-                    {
-                        question: '在Mac上，强制退出程序的快捷键是什么？',
-                        hint: '💡 提示：相当于Windows的Ctrl + Alt + Delete',
-                        options: ['Ctrl + Alt + Delete', 'Command + Option + Escape', 'Command + Q', 'Force Quit'],
-                        correct: 1,
-                        explanation: '强制退出是 Command + Option + Escape。Command + Q 是正常退出程序。'
-                    }
-                ]
-            },
-            2: {
-                title: '访达探险记',
-                icon: '📁',
-                questions: [
-                    {
-                        question: 'Mac的文件管理器叫什么？',
-                        hint: '💡 提示：它的图标是一个笑脸',
-                        options: ['资源管理器', '访达 (Finder)', '文件管理器', '我的电脑'],
-                        correct: 1,
-                        explanation: 'Mac的文件管理器叫"访达" (Finder)，相当于Windows的"资源管理器"。它在Dock栏最左边，图标是笑脸。'
-                    },
-                    {
-                        question: '在Mac的访达中，如何剪切文件？',
-                        hint: '💡 提示：Mac没有直接的剪切选项',
-                        options: ['Command + X', '先复制(Command + C)，再移动(Command + Option + V)', '直接拖拽', '右键选择剪切'],
-                        correct: 1,
-                        explanation: 'Mac的访达没有直接的"剪切"选项。正确做法是：先复制(Command + C)，然后到目标文件夹按 Command + Option + V 来移动。'
-                    },
-                    {
-                        question: 'Mac的文件系统有C盘、D盘吗？',
-                        hint: '💡 提示：Mac的文件系统逻辑和Windows不同',
-                        options: ['有，和Windows一样', '没有，只有一个统一的存储空间', '只有C盘', '可以通过分区创建'],
-                        correct: 1,
-                        explanation: 'Mac没有C盘、D盘的概念。它只有一个统一的存储空间，所有文件都在"访达"的"位置"中管理。'
-                    },
-                    {
-                        question: '在Mac上，如何查看文件的详细信息？',
-                        hint: '💡 提示：有一个专门的快捷键',
-                        options: ['右键 → 属性', 'Command + I', 'Option + I', '双击文件'],
-                        correct: 1,
-                        explanation: '查看文件信息是 Command + I（显示简介）。这相当于Windows的"右键 → 属性"。'
-                    },
-                    {
-                        question: 'Mac的"下载"文件夹在哪里？',
-                        hint: '💡 提示：在访达的侧边栏',
-                        options: ['C盘 → 下载', '访达侧边栏 → 下载', '桌面', '需要自己创建'],
-                        correct: 1,
-                        explanation: 'Mac的"下载"文件夹在访达的侧边栏中，所有浏览器下载的文件都会保存在这里。'
-                    }
-                ]
-            },
-            3: {
-                title: '窗口魔术师',
-                icon: '🪟',
-                questions: [
-                    {
-                        question: 'Mac窗口左上角的红色按钮是做什么的？',
-                        hint: '💡 提示：它和Windows的X按钮不太一样',
-                        options: ['关闭程序', '关闭窗口（程序仍在后台运行）', '最小化', '退出程序'],
-                        correct: 1,
-                        explanation: 'Mac的红色按钮是"关闭窗口"，但程序仍在后台运行。要完全退出程序，需要按 Command + Q。'
-                    },
-                    {
-                        question: 'Mac窗口左上角的黄色按钮是做什么的？',
-                        hint: '💡 提示：它和Windows的—按钮类似',
-                        options: ['关闭窗口', '最小化到Dock', '最小化到任务栏', '隐藏窗口'],
-                        correct: 1,
-                        explanation: '黄色按钮是"最小化"，会把窗口最小化到Dock栏的右侧。点击Dock栏的图标可以恢复。'
-                    },
-                    {
-                        question: 'Mac窗口左上角的绿色按钮是做什么的？',
-                        hint: '💡 提示：它和Windows的最大化按钮类似',
-                        options: ['最大化窗口', '全屏模式', '最大化或进入全屏', '放大窗口'],
-                        correct: 2,
-                        explanation: '绿色按钮可以最大化窗口，也可以进入全屏模式（取决于应用）。在macOS中，全屏模式会创建一个新的桌面空间。'
-                    },
-                    {
-                        question: '在Mac上，如何关闭程序？',
-                        hint: '💡 提示：点击红色按钮不能完全关闭程序',
-                        options: ['点击红色按钮', 'Command + Q', 'Command + W', '拖到废纸篓'],
-                        correct: 1,
-                        explanation: '要完全关闭程序，需要按 Command + Q。Command + W 只是关闭当前窗口，程序仍在后台运行。'
-                    },
-                    {
-                        question: 'Mac的Dock栏相当于Windows的什么？',
-                        hint: '💡 提示：它在屏幕底部',
-                        options: ['桌面', '任务栏 + 开始菜单', '系统托盘', '快速启动栏'],
-                        correct: 1,
-                        explanation: 'Mac的Dock栏相当于Windows的任务栏 + 开始菜单。它显示常用应用、正在运行的应用和废纸篓。'
-                    }
-                ]
-            }
+        // 任务数据
+        const tasks = {
+            1: [
+                {
+                    title: '复制文件',
+                    desc: '选中桌面上的文件，然后按出复制的快捷键',
+                    hint: '💡 提示：Mac的Command键相当于Windows的Ctrl键',
+                    type: 'keyboard',
+                    keys: ['command', 'c'],
+                    file: '📄',
+                    fileName: '我的文档.txt'
+                },
+                {
+                    title: '粘贴文件',
+                    desc: '现在按出粘贴的快捷键',
+                    hint: '💡 提示：Command键在空格键旁边',
+                    type: 'keyboard',
+                    keys: ['command', 'v']
+                },
+                {
+                    title: '撤销操作',
+                    desc: '哎呀，粘贴错了！按出撤销的快捷键',
+                    hint: '💡 提示：和Windows一样，只是换了键',
+                    type: 'keyboard',
+                    keys: ['command', 'z']
+                },
+                {
+                    title: '截图',
+                    desc: '按出截图的快捷键，截取整个屏幕',
+                    hint: '💡 提示：需要三个键一起按',
+                    type: 'keyboard',
+                    keys: ['command', 'shift', '3']
+                },
+                {
+                    title: '强制退出',
+                    desc: '程序卡住了！按出强制退出的快捷键',
+                    hint: '💡 提示：相当于Windows的Ctrl+Alt+Delete',
+                    type: 'keyboard',
+                    keys: ['command', 'option', 'escape']
+                }
+            ],
+            2: [
+                {
+                    title: '打开访达',
+                    desc: '点击Dock栏最左边的笑脸图标',
+                    hint: '💡 提示：它在屏幕底部，图标是😊',
+                    type: 'click',
+                    target: 'finder'
+                },
+                {
+                    title: '查看文件信息',
+                    desc: '选中文件，然后按出查看信息的快捷键',
+                    hint: '💡 提�示：相当于Windows的右键→属性',
+                    type: 'keyboard',
+                    keys: ['command', 'i'],
+                    file: '📄',
+                    fileName: '照片.jpg'
+                },
+                {
+                    title: '右键菜单',
+                    desc: '在文件上点击右键，看看Mac的右键菜单',
+                    hint: '💡 提示：Mac的右键菜单和Windows不太一样',
+                    type: 'rightclick',
+                    file: '📄',
+                    fileName: '文档.pdf'
+                },
+                {
+                    title: '移到废纸篓',
+                    desc: '选中文件，按出删除的快捷键',
+                    hint: '💡 提示：Mac叫"移到废纸篓"，不是"删除"',
+                    type: 'keyboard',
+                    keys: ['command', 'delete'],
+                    file: '📄',
+                    fileName: '旧文件.txt'
+                },
+                {
+                    title: '新建文件夹',
+                    desc: '按出新建文件夹的快捷键',
+                    hint: '💡 提示：三个键一起按',
+                    type: 'keyboard',
+                    keys: ['command', 'shift', 'n']
+                }
+            ],
+            3: [
+                {
+                    title: '关闭窗口',
+                    desc: '点击窗口左上角的红色按钮',
+                    hint: '💡 提示：红色按钮 ≠ 关闭程序',
+                    type: 'click',
+                    target: 'close'
+                },
+                {
+                    title: '最小化窗口',
+                    desc: '点击窗口左上角的黄色按钮',
+                    hint: '💡 提示：黄色按钮会把窗口收到Dock栏',
+                    type: 'click',
+                    target: 'minimize'
+                },
+                {
+                    title: '最大化窗口',
+                    desc: '点击窗口左上角的绿色按钮',
+                    hint: '💡 提示：绿色按钮可以全屏或最大化',
+                    type: 'click',
+                    target: 'maximize'
+                },
+                {
+                    title: '完全关闭程序',
+                    desc: '按出完全关闭程序的快捷键',
+                    hint: '💡 提示：点击红色按钮不能完全关闭程序',
+                    type: 'keyboard',
+                    keys: ['command', 'q']
+                },
+                {
+                    title: '切换程序',
+                    desc: '按出切换程序的快捷键',
+                    hint: '💡 提示：相当于Windows的Alt+Tab',
+                    type: 'keyboard',
+                    keys: ['command', 'tab']
+                }
+            ]
         };
 
         // 初始化
         function init() {
-            updateProgress();
-            updateTotalScore();
+            setupKeyboardListeners();
+            setupContextMenu();
+            updateScoreDisplay();
         }
 
-        // 更新进度
-        function updateProgress() {
-            const total = Object.keys(levels).length;
-            const completed = completedLevels.size;
-            const percentage = (completed / total) * 100;
+        // 设置键盘监听
+        function setupKeyboardListeners() {
+            document.addEventListener('keydown', (e) => {
+                e.preventDefault();
+                const key = normalizeKey(e.key);
+                pressedKeys.add(key);
+                highlightKey(key, true);
+                checkKeyboardTask();
+            });
 
-            document.getElementById('progressFill').style.width = percentage + '%';
-            document.getElementById('progressText').textContent = `总进度：${completed}/${total} 关卡`;
+            document.addEventListener('keyup', (e) => {
+                const key = normalizeKey(e.key);
+                pressedKeys.delete(key);
+                highlightKey(key, false);
+            });
         }
 
-        // 更新总分
-        function updateTotalScore() {
-            document.getElementById('totalScore').textContent = totalScore;
+        // 标准化按键名称
+        function normalizeKey(key) {
+            const keyMap = {
+                'Meta': 'command',
+                'Control': 'control',
+                'Alt': 'option',
+                'Shift': 'shift',
+                ' ': 'space',
+                'Escape': 'escape',
+                'Backspace': 'delete',
+                'Enter': 'return',
+                'Tab': 'tab',
+                'CapsLock': 'caps'
+            };
+            return keyMap[key] || key.toLowerCase();
+        }
+
+        // 高亮按键
+        function highlightKey(key, active) {
+            const keys = document.querySelectorAll('.key');
+            keys.forEach(k => {
+                if (k.dataset.key === key) {
+                    if (active) {
+                        k.classList.add('active');
+                    } else {
+                        k.classList.remove('active');
+                    }
+                }
+            });
+        }
+
+        // 设置右键菜单
+        function setupContextMenu() {
+            document.addEventListener('contextmenu', (e) => {
+                e.preventDefault();
+            });
         }
 
         // 开始关卡
         function startLevel(level) {
-            if (completedLevels.has(level)) {
-                if (!confirm('这个关卡已经完成了，要重新挑战吗？')) {
-                    return;
-                }
-            }
-
             currentLevel = level;
-            currentQuestion = 0;
-            levelScore = 0;
+            currentTask = 0;
+            score = 0;
 
             document.getElementById('levelsSection').style.display = 'none';
+            document.getElementById('mainHeader').style.display = 'none';
             document.getElementById('gameArea').style.display = 'block';
-            document.getElementById('completion').style.display = 'none';
+            document.getElementById('scoreDisplay').classList.add('show');
+            document.getElementById('progressBar').classList.add('show');
+            document.getElementById('completion').classList.remove('show');
 
-            document.getElementById('gameTitle').textContent = levels[level].title;
-            document.getElementById('gameScore').textContent = '0';
-
-            showQuestion();
+            updateScoreDisplay();
+            updateProgress();
+            showTask();
         }
 
-        // 显示问题
-        function showQuestion() {
-            const level = levels[currentLevel];
-            const question = level.questions[currentQuestion];
+        // 显示任务
+        function showTask() {
+            const task = tasks[currentLevel][currentTask];
 
-            document.getElementById('questionNumber').textContent = `第 ${currentQuestion + 1} 题`;
-            document.getElementById('questionText').textContent = question.question;
-            document.getElementById('questionHint').textContent = question.hint;
+            document.getElementById('taskTitle').textContent = task.title;
+            document.getElementById('taskDesc').textContent = task.desc;
+            document.getElementById('taskHint').textContent = task.hint;
 
-            const optionsContainer = document.getElementById('options');
-            optionsContainer.innerHTML = '';
-
-            question.options.forEach((option, index) => {
-                const optionDiv = document.createElement('div');
-                optionDiv.className = 'option';
-                optionDiv.textContent = option;
-                optionDiv.onclick = () => checkAnswer(index);
-                optionsContainer.appendChild(optionDiv);
-            });
-
-            document.getElementById('feedback').style.display = 'none';
-            document.getElementById('nextBtn').style.display = 'none';
-
-            // 更新关卡卡片状态
-            updateLevelCardStatus(currentLevel, 'in-progress');
+            // 根据任务类型设置界面
+            if (task.type === 'keyboard') {
+                showKeyboardTask(task);
+            } else if (task.type === 'click') {
+                showClickTask(task);
+            } else if (task.type === 'rightclick') {
+                showRightclickTask(task);
+            }
         }
 
-        // 检查答案
-        function checkAnswer(selectedIndex) {
-            const level = levels[currentLevel];
-            const question = level.questions[currentQuestion];
-            const options = document.querySelectorAll('.option');
+        // 显示键盘任务
+        function showKeyboardTask(task) {
+            const content = document.getElementById('windowContent');
+
+            if (task.file) {
+                content.innerHTML = `
+                    <div class="file-icon" style="font-size: 48px; margin-bottom: 20px;">
+                        ${task.file}
+                    </div>
+                    <div style="color: #fff; font-size: 16px;">${task.fileName}</div>
+                `;
+            } else {
+                content.innerHTML = `
+                    <div style="color: rgba(255,255,255,0.5); font-size: 14px;">
+                        请按出正确的快捷键
+                    </div>
+                `;
+            }
+
+            document.getElementById('keyboard').style.display = 'flex';
+        }
+
+        // 显示点击任务
+        function showClickTask(task) {
+            const content = document.getElementById('windowContent');
+            document.getElementById('keyboard').style.display = 'none';
+
+            if (task.target === 'finder') {
+                content.innerHTML = `
+                    <div style="text-align: center;">
+                        <div style="font-size: 64px; margin-bottom: 20px;">😊</div>
+                        <div style="color: #fff; font-size: 18px;">点击我打开访达</div>
+                        <div style="color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 10px;">
+                            我在Dock栏最左边
+                        </div>
+                    </div>
+                `;
+                content.style.cursor = 'pointer';
+                content.onclick = () => handleFinderClick();
+            } else {
+                content.innerHTML = `
+                    <div style="color: #fff; font-size: 16px;">
+                        点击窗口左上角的按钮
+                    </div>
+                `;
+            }
+        }
+
+        // 显示右键任务
+        function showRightclickTask(task) {
+            const content = document.getElementById('windowContent');
+            document.getElementById('keyboard').style.display = 'none';
+
+            content.innerHTML = `
+                <div class="file-icon" style="font-size: 48px; margin-bottom: 20px; cursor: context-menu;">
+                    ${task.file}
+                </div>
+                <div style="color: #fff; font-size: 16px;">${task.fileName}</div>
+                <div style="color: rgba(255,255,255,0.5); font-size: 14px; margin-top: 10px;">
+                    在文件上点击右键
+                </div>
+            `;
+
+            content.oncontextmenu = (e) => {
+                e.preventDefault();
+                showContextMenu(e.clientX, e.clientY);
+            };
+        }
+
+        // 检查键盘任务
+        function checkKeyboardTask() {
+            const task = tasks[currentLevel][currentTask];
+            if (task.type !== 'keyboard') return;
+
+            const requiredKeys = task.keys;
+            const allPressed = requiredKeys.every(key => pressedKeys.has(key));
+
+            if (allPressed && pressedKeys.size === requiredKeys.length) {
+                handleCorrect();
+            }
+        }
+
+        // 处理访达点击
+        function handleFinderClick() {
+            handleCorrect();
+        }
+
+        // 处理窗口按钮点击
+        function handleWindowBtn(btn) {
+            const task = tasks[currentLevel][currentTask];
+            if (task.type === 'click' && task.target === btn) {
+                handleCorrect();
+            } else {
+                handleWrong();
+            }
+        }
+
+        // 显示右键菜单
+        function showContextMenu(x, y) {
+            const menu = document.getElementById('contextMenu');
+            menu.style.left = x + 'px';
+            menu.style.top = y + 'px';
+            menu.classList.add('show');
+
+            // 点击其他地方关闭菜单
+            document.addEventListener('click', () => {
+                menu.classList.remove('show');
+            }, { once: true });
+        }
+
+        // 处理右键菜单动作
+        function handleContextAction(action) {
+            const task = tasks[currentLevel][currentTask];
+            if (task.type === 'rightclick') {
+                handleCorrect();
+            }
+            document.getElementById('contextMenu').classList.remove('show');
+        }
+
+        // 处理正确
+        function handleCorrect() {
+            score += 20;
+            updateScoreDisplay();
+
+            showFeedback(true, '太棒了！🎉', getExplanation());
+
+            // 粒子效果
+            createParticles();
+
+            // 延迟后进入下一题
+            setTimeout(() => {
+                hideFeedback();
+                currentTask++;
+
+                if (currentTask < tasks[currentLevel].length) {
+                    showTask();
+                    updateProgress();
+                } else {
+                    completeLevel();
+                }
+            }, 2000);
+        }
+
+        // 处理错误
+        function handleWrong() {
+            showFeedback(false, '再试一次！💪', '这个操作不对哦，看看提示再试试？');
+            setTimeout(hideFeedback, 1500);
+        }
+
+        // 获取解释
+        function getExplanation() {
+            const explanations = {
+                1: [
+                    '正确！Mac上复制是 Command + C，不是 Ctrl + C',
+                    '正确！粘贴是 Command + V，记住：Command = Ctrl',
+                    '正确！撤销是 Command + Z，和Windows逻辑一样',
+                    '正确！Mac截图是 Command + Shift + 3',
+                    '正确！强制退出是 Command + Option + Escape'
+                ],
+                2: [
+                    '正确！访达(Finder)是Mac的文件管理器',
+                    '正确！查看信息是 Command + I',
+                    '正确！Mac的右键菜单有很多实用功能',
+                    '正确！Mac叫"移到废纸篓"，不是"删除"',
+                    '正确！新建文件夹是 Command + Shift + N'
+                ],
+                3: [
+                    '正确！红色按钮只是关闭窗口，程序还在运行',
+                    '正确！黄色按钮会最小化到Dock栏',
+                    '正确！绿色按钮可以最大化或全屏',
+                    '正确！完全关闭程序是 Command + Q',
+                    '正确！切换程序是 Command + Tab'
+                ]
+            };
+
+            return explanations[currentLevel]?.[currentTask] || '正确！';
+        }
+
+        // 显示反馈
+        function showFeedback(isCorrect, title, text) {
             const feedback = document.getElementById('feedback');
-
-            // 禁用所有选项
-            options.forEach(option => {
-                option.classList.add('disabled');
-                option.onclick = null;
-            });
-
-            // 标记正确和错误选项
-            options[question.correct].classList.add('correct');
-            if (selectedIndex !== question.correct) {
-                options[selectedIndex].classList.add('wrong');
-            }
-
-            // 显示反馈
-            if (selectedIndex === question.correct) {
-                levelScore += 20;
-                feedback.className = 'feedback correct fade-in';
-                feedback.innerHTML = `✅ 正确！+20分<br><br>${question.explanation}`;
-            } else {
-                feedback.className = 'feedback wrong fade-in';
-                feedback.innerHTML = `❌ 错误！正确答案是：${question.options[question.correct]}<br><br>${question.explanation}`;
-            }
-
-            feedback.style.display = 'block';
-            document.getElementById('nextBtn').style.display = 'block';
-            document.getElementById('gameScore').textContent = levelScore;
+            feedback.className = `feedback ${isCorrect ? 'correct' : 'wrong'} show`;
+            document.getElementById('feedbackIcon').textContent = isCorrect ? '🎉' : '💪';
+            document.getElementById('feedbackTitle').textContent = title;
+            document.getElementById('feedbackText').textContent = text;
         }
 
-        // 下一题
-        function nextQuestion() {
-            const level = levels[currentLevel];
-            currentQuestion++;
+        // 隐藏反馈
+        function hideFeedback() {
+            document.getElementById('feedback').classList.remove('show');
+        }
 
-            if (currentQuestion < level.questions.length) {
-                showQuestion();
-            } else {
-                completeLevel();
+        // 创建粒子效果
+        function createParticles() {
+            const container = document.getElementById('particles');
+            const colors = ['#ffd700', '#ff6b6b', '#4ade80', '#667eea', '#764ba2'];
+
+            for (let i = 0; i < 50; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = '-10px';
+                particle.style.background = colors[Math.floor(Math.random() * colors.length)];
+                particle.style.width = (Math.random() * 10 + 5) + 'px';
+                particle.style.height = particle.style.width;
+                container.appendChild(particle);
+
+                setTimeout(() => {
+                    particle.remove();
+                }, 1000);
             }
+        }
+
+        // 更新分数显示
+        function updateScoreDisplay() {
+            document.getElementById('scoreValue').textContent = score;
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const total = tasks[currentLevel].length;
+            const percentage = (currentTask / total) * 100;
+
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `${currentTask} / ${total}`;
         }
 
         // 完成关卡
         function completeLevel() {
             completedLevels.add(currentLevel);
-            totalScore += levelScore;
+            totalScore += score;
 
             document.getElementById('gameArea').style.display = 'none';
-            document.getElementById('completion').style.display = 'block';
+            document.getElementById('scoreDisplay').classList.remove('show');
+            document.getElementById('progressBar').classList.remove('show');
+            document.getElementById('completion').classList.add('show');
 
-            document.getElementById('completionScore').textContent = levelScore + '分';
+            document.getElementById('completionScore').textContent = score + '分';
 
-            const maxScore = levels[currentLevel].questions.length * 20;
-            const percentage = (levelScore / maxScore) * 100;
+            const maxScore = tasks[currentLevel].length * 20;
+            const percentage = (score / maxScore) * 100;
 
             let message = '';
             if (percentage === 100) {
@@ -741,31 +1555,52 @@
 
             document.getElementById('completionMessage').textContent = message;
 
-            updateProgress();
-            updateTotalScore();
-            updateLevelCardStatus(currentLevel, 'completed');
+            // 显示成就徽章
+            if (percentage === 100) {
+                setTimeout(() => {
+                    showBadge();
+                }, 1000);
+            }
         }
 
-        // 更新关卡卡片状态
-        function updateLevelCardStatus(level, status) {
-            const cards = document.querySelectorAll('.level-card');
-            const card = cards[level - 1];
-            const statusDiv = card.querySelector('.level-status');
-
-            if (status === 'completed') {
-                statusDiv.className = 'level-status status-completed';
-                statusDiv.textContent = '✅ 已完成';
-            } else if (status === 'in-progress') {
-                statusDiv.className = 'level-status status-new';
-                statusDiv.textContent = '进行中...';
+        // 下一关
+        function nextLevel() {
+            const nextLevelNum = currentLevel + 1;
+            if (nextLevelNum <= 3) {
+                startLevel(nextLevelNum);
+            } else {
+                backToLevels();
             }
         }
 
         // 返回关卡选择
         function backToLevels() {
             document.getElementById('levelsSection').style.display = 'grid';
+            document.getElementById('mainHeader').style.display = 'block';
             document.getElementById('gameArea').style.display = 'none';
-            document.getElementById('completion').style.display = 'none';
+            document.getElementById('completion').classList.remove('show');
+            document.getElementById('scoreDisplay').classList.remove('show');
+            document.getElementById('progressBar').classList.remove('show');
+        }
+
+        // 显示成就徽章
+        function showBadge() {
+            const badges = {
+                1: { icon: '⌨️', title: '快捷键大师', desc: '你已经掌握了Mac快捷键的核心逻辑！' },
+                2: { icon: '📁', title: '访达管理大师', desc: '你已经学会了Mac的文件管理！' },
+                3: { icon: '🪟', title: '窗口魔术师', desc: '你已经理解了Mac的窗口逻辑！' }
+            };
+
+            const badge = badges[currentLevel];
+            document.getElementById('badgeIcon').textContent = badge.icon;
+            document.getElementById('badgeTitle').textContent = badge.title;
+            document.getElementById('badgeDesc').textContent = badge.desc;
+            document.getElementById('badge').classList.add('show');
+        }
+
+        // 隐藏徽章
+        function hideBadge() {
+            document.getElementById('badge').classList.remove('show');
         }
 
         // 初始化游戏
