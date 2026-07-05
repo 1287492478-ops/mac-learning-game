@@ -1,0 +1,775 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mac新手闯关游戏</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            min-height: 100vh;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* 头部 */
+        .header {
+            text-align: center;
+            padding: 40px 20px 20px;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 10px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .header p {
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 16px;
+        }
+
+        /* 进度条 */
+        .progress-bar {
+            max-width: 600px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+
+        .progress-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            height: 12px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            margin-top: 8px;
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 分数显示 */
+        .score-display {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .score {
+            font-size: 48px;
+            font-weight: 700;
+            color: #ffd700;
+        }
+
+        .score-label {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        /* 关卡选择 */
+        .levels {
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+
+        .level-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            border: 2px solid transparent;
+            backdrop-filter: blur(10px);
+        }
+
+        .level-card:hover {
+            transform: translateY(-5px);
+            border-color: #667eea;
+            box-shadow: 0 10px 30px rgba(102, 126, 234, 0.3);
+        }
+
+        .level-card.locked {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .level-card.locked:hover {
+            transform: none;
+            border-color: transparent;
+            box-shadow: none;
+        }
+
+        .level-icon {
+            font-size: 48px;
+            margin-bottom: 16px;
+        }
+
+        .level-title {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .level-desc {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            line-height: 1.5;
+        }
+
+        .level-status {
+            margin-top: 16px;
+            padding: 6px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .status-new {
+            background: rgba(102, 126, 234, 0.2);
+            color: #667eea;
+        }
+
+        .status-completed {
+            background: rgba(74, 222, 128, 0.2);
+            color: #4ade80;
+        }
+
+        .status-locked {
+            background: rgba(255, 255, 255, 0.1);
+            color: rgba(255, 255, 255, 0.4);
+        }
+
+        /* 游戏区域 */
+        .game-area {
+            display: none;
+            max-width: 800px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .game-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .back-btn {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 8px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s ease;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .game-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .game-score {
+            font-size: 20px;
+            color: #ffd700;
+        }
+
+        /* 问题卡片 */
+        .question-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .question-number {
+            font-size: 14px;
+            color: #667eea;
+            margin-bottom: 10px;
+        }
+
+        .question-text {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            line-height: 1.5;
+        }
+
+        .question-hint {
+            font-size: 14px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 20px;
+            padding: 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+        }
+
+        /* 选项 */
+        .options {
+            display: grid;
+            gap: 12px;
+        }
+
+        .option {
+            padding: 16px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 16px;
+            color: #fff;
+        }
+
+        .option:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .option.correct {
+            background: rgba(74, 222, 128, 0.2);
+            border-color: #4ade80;
+        }
+
+        .option.wrong {
+            background: rgba(248, 113, 113, 0.2);
+            border-color: #f87171;
+        }
+
+        .option.disabled {
+            cursor: not-allowed;
+            opacity: 0.7;
+        }
+
+        /* 反馈消息 */
+        .feedback {
+            display: none;
+            padding: 16px;
+            border-radius: 12px;
+            margin-top: 16px;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .feedback.correct {
+            background: rgba(74, 222, 128, 0.1);
+            border: 1px solid rgba(74, 222, 128, 0.3);
+            color: #4ade80;
+        }
+
+        .feedback.wrong {
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            color: #f87171;
+        }
+
+        /* 下一题按钮 */
+        .next-btn {
+            display: none;
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .next-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 完成页面 */
+        .completion {
+            display: none;
+            text-align: center;
+            padding: 40px 20px;
+        }
+
+        .completion-icon {
+            font-size: 80px;
+            margin-bottom: 20px;
+        }
+
+        .completion-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .completion-score {
+            font-size: 48px;
+            color: #ffd700;
+            font-weight: 700;
+            margin-bottom: 20px;
+        }
+
+        .completion-message {
+            font-size: 16px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-bottom: 30px;
+        }
+
+        .completion-btn {
+            padding: 16px 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border: none;
+            border-radius: 12px;
+            color: #fff;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .completion-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        /* 动画 */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .levels {
+                grid-template-columns: 1fr;
+            }
+
+            .question-text {
+                font-size: 18px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 头部 -->
+    <header class="header">
+        <h1>🎮 Mac新手闯关游戏</h1>
+        <p>Windows转Mac必玩，玩一遍就能正常办公</p>
+    </header>
+
+    <!-- 进度条 -->
+    <div class="progress-bar">
+        <div class="progress-track">
+            <div class="progress-fill" id="progressFill"></div>
+        </div>
+        <div class="progress-text" id="progressText">总进度：0/3 关卡</div>
+    </div>
+
+    <!-- 分数显示 -->
+    <div class="score-display">
+        <div class="score" id="totalScore">0</div>
+        <div class="score-label">总分</div>
+    </div>
+
+    <!-- 关卡选择 -->
+    <section class="levels" id="levelsSection">
+        <!-- 关卡1 -->
+        <div class="level-card" onclick="startLevel(1)">
+            <div class="level-icon">⌨️</div>
+            <div class="level-title">快捷键大挑战</div>
+            <div class="level-desc">告别Ctrl肌肉记忆，掌握Mac快捷键核心逻辑</div>
+            <div class="level-status status-new">开始挑战</div>
+        </div>
+
+        <!-- 关卡2 -->
+        <div class="level-card" onclick="startLevel(2)">
+            <div class="level-icon">📁</div>
+            <div class="level-title">访达探险记</div>
+            <div class="level-desc">告别资源管理器，玩转Mac文件管理</div>
+            <div class="level-status status-new">开始挑战</div>
+        </div>
+
+        <!-- 关卡3 -->
+        <div class="level-card" onclick="startLevel(3)">
+            <div class="level-icon">🪟</div>
+            <div class="level-title">窗口魔术师</div>
+            <div class="level-desc">掌握红绿灯窗口逻辑，告别Windows窗口习惯</div>
+            <div class="level-status status-new">开始挑战</div>
+        </div>
+    </section>
+
+    <!-- 游戏区域 -->
+    <section class="game-area" id="gameArea">
+        <div class="game-header">
+            <button class="back-btn" onclick="backToLevels()">← 返回</button>
+            <div class="game-title" id="gameTitle">快捷键大挑战</div>
+            <div class="game-score">得分：<span id="gameScore">0</span></div>
+        </div>
+
+        <div class="question-card" id="questionCard">
+            <div class="question-number" id="questionNumber">第 1 题</div>
+            <div class="question-text" id="questionText"></div>
+            <div class="question-hint" id="questionHint"></div>
+            <div class="options" id="options"></div>
+            <div class="feedback" id="feedback"></div>
+            <button class="next-btn" id="nextBtn" onclick="nextQuestion()">下一题 →</button>
+        </div>
+    </section>
+
+    <!-- 完成页面 -->
+    <section class="completion" id="completion">
+        <div class="completion-icon">🎉</div>
+        <div class="completion-title">恭喜通关！</div>
+        <div class="completion-score" id="completionScore">0</div>
+        <div class="completion-message" id="completionMessage"></div>
+        <button class="completion-btn" onclick="backToLevels()">返回关卡选择</button>
+    </section>
+
+    <script>
+        // 游戏状态
+        let totalScore = 0;
+        let currentLevel = 0;
+        let currentQuestion = 0;
+        let levelScore = 0;
+        let completedLevels = new Set();
+
+        // 关卡数据
+        const levels = {
+            1: {
+                title: '快捷键大挑战',
+                icon: '⌨️',
+                questions: [
+                    {
+                        question: '在Mac上，复制文件的快捷键是什么？',
+                        hint: '💡 提示：Mac的Command键相当于Windows的Ctrl键',
+                        options: ['Ctrl + C', 'Command + C', 'Option + C', 'Shift + C'],
+                        correct: 1,
+                        explanation: '在Mac上，Command (⌘) 键相当于Windows的Ctrl键。所以复制是 Command + C，而不是 Ctrl + C。'
+                    },
+                    {
+                        question: '在Mac上，粘贴文件的快捷键是什么？',
+                        hint: '💡 提示：Command键在空格键旁边',
+                        options: ['Ctrl + V', 'Command + V', 'Option + V', 'Shift + V'],
+                        correct: 1,
+                        explanation: '粘贴是 Command + V。Mac上几乎所有快捷键都用Command键，而不是Ctrl键。'
+                    },
+                    {
+                        question: '在Mac上，撤销操作的快捷键是什么？',
+                        hint: '💡 提示：和Windows的逻辑一样，只是换了键',
+                        options: ['Ctrl + Z', 'Command + Z', 'Option + Z', 'Shift + Z'],
+                        correct: 1,
+                        explanation: '撤销是 Command + Z。记住：Mac的Command = Windows的Ctrl。'
+                    },
+                    {
+                        question: '在Mac上，截图的快捷键是什么？',
+                        hint: '💡 提示：Mac有专门的截图快捷键',
+                        options: ['Print Screen', 'Command + Shift + 3', 'Command + S', 'Ctrl + Print Screen'],
+                        correct: 1,
+                        explanation: 'Mac截图是 Command + Shift + 3（全屏）或 Command + Shift + 4（区域截图）。'
+                    },
+                    {
+                        question: '在Mac上，强制退出程序的快捷键是什么？',
+                        hint: '💡 提示：相当于Windows的Ctrl + Alt + Delete',
+                        options: ['Ctrl + Alt + Delete', 'Command + Option + Escape', 'Command + Q', 'Force Quit'],
+                        correct: 1,
+                        explanation: '强制退出是 Command + Option + Escape。Command + Q 是正常退出程序。'
+                    }
+                ]
+            },
+            2: {
+                title: '访达探险记',
+                icon: '📁',
+                questions: [
+                    {
+                        question: 'Mac的文件管理器叫什么？',
+                        hint: '💡 提示：它的图标是一个笑脸',
+                        options: ['资源管理器', '访达 (Finder)', '文件管理器', '我的电脑'],
+                        correct: 1,
+                        explanation: 'Mac的文件管理器叫"访达" (Finder)，相当于Windows的"资源管理器"。它在Dock栏最左边，图标是笑脸。'
+                    },
+                    {
+                        question: '在Mac的访达中，如何剪切文件？',
+                        hint: '💡 提示：Mac没有直接的剪切选项',
+                        options: ['Command + X', '先复制(Command + C)，再移动(Command + Option + V)', '直接拖拽', '右键选择剪切'],
+                        correct: 1,
+                        explanation: 'Mac的访达没有直接的"剪切"选项。正确做法是：先复制(Command + C)，然后到目标文件夹按 Command + Option + V 来移动。'
+                    },
+                    {
+                        question: 'Mac的文件系统有C盘、D盘吗？',
+                        hint: '💡 提示：Mac的文件系统逻辑和Windows不同',
+                        options: ['有，和Windows一样', '没有，只有一个统一的存储空间', '只有C盘', '可以通过分区创建'],
+                        correct: 1,
+                        explanation: 'Mac没有C盘、D盘的概念。它只有一个统一的存储空间，所有文件都在"访达"的"位置"中管理。'
+                    },
+                    {
+                        question: '在Mac上，如何查看文件的详细信息？',
+                        hint: '💡 提示：有一个专门的快捷键',
+                        options: ['右键 → 属性', 'Command + I', 'Option + I', '双击文件'],
+                        correct: 1,
+                        explanation: '查看文件信息是 Command + I（显示简介）。这相当于Windows的"右键 → 属性"。'
+                    },
+                    {
+                        question: 'Mac的"下载"文件夹在哪里？',
+                        hint: '💡 提示：在访达的侧边栏',
+                        options: ['C盘 → 下载', '访达侧边栏 → 下载', '桌面', '需要自己创建'],
+                        correct: 1,
+                        explanation: 'Mac的"下载"文件夹在访达的侧边栏中，所有浏览器下载的文件都会保存在这里。'
+                    }
+                ]
+            },
+            3: {
+                title: '窗口魔术师',
+                icon: '🪟',
+                questions: [
+                    {
+                        question: 'Mac窗口左上角的红色按钮是做什么的？',
+                        hint: '💡 提示：它和Windows的X按钮不太一样',
+                        options: ['关闭程序', '关闭窗口（程序仍在后台运行）', '最小化', '退出程序'],
+                        correct: 1,
+                        explanation: 'Mac的红色按钮是"关闭窗口"，但程序仍在后台运行。要完全退出程序，需要按 Command + Q。'
+                    },
+                    {
+                        question: 'Mac窗口左上角的黄色按钮是做什么的？',
+                        hint: '💡 提示：它和Windows的—按钮类似',
+                        options: ['关闭窗口', '最小化到Dock', '最小化到任务栏', '隐藏窗口'],
+                        correct: 1,
+                        explanation: '黄色按钮是"最小化"，会把窗口最小化到Dock栏的右侧。点击Dock栏的图标可以恢复。'
+                    },
+                    {
+                        question: 'Mac窗口左上角的绿色按钮是做什么的？',
+                        hint: '💡 提示：它和Windows的最大化按钮类似',
+                        options: ['最大化窗口', '全屏模式', '最大化或进入全屏', '放大窗口'],
+                        correct: 2,
+                        explanation: '绿色按钮可以最大化窗口，也可以进入全屏模式（取决于应用）。在macOS中，全屏模式会创建一个新的桌面空间。'
+                    },
+                    {
+                        question: '在Mac上，如何关闭程序？',
+                        hint: '💡 提示：点击红色按钮不能完全关闭程序',
+                        options: ['点击红色按钮', 'Command + Q', 'Command + W', '拖到废纸篓'],
+                        correct: 1,
+                        explanation: '要完全关闭程序，需要按 Command + Q。Command + W 只是关闭当前窗口，程序仍在后台运行。'
+                    },
+                    {
+                        question: 'Mac的Dock栏相当于Windows的什么？',
+                        hint: '💡 提示：它在屏幕底部',
+                        options: ['桌面', '任务栏 + 开始菜单', '系统托盘', '快速启动栏'],
+                        correct: 1,
+                        explanation: 'Mac的Dock栏相当于Windows的任务栏 + 开始菜单。它显示常用应用、正在运行的应用和废纸篓。'
+                    }
+                ]
+            }
+        };
+
+        // 初始化
+        function init() {
+            updateProgress();
+            updateTotalScore();
+        }
+
+        // 更新进度
+        function updateProgress() {
+            const total = Object.keys(levels).length;
+            const completed = completedLevels.size;
+            const percentage = (completed / total) * 100;
+
+            document.getElementById('progressFill').style.width = percentage + '%';
+            document.getElementById('progressText').textContent = `总进度：${completed}/${total} 关卡`;
+        }
+
+        // 更新总分
+        function updateTotalScore() {
+            document.getElementById('totalScore').textContent = totalScore;
+        }
+
+        // 开始关卡
+        function startLevel(level) {
+            if (completedLevels.has(level)) {
+                if (!confirm('这个关卡已经完成了，要重新挑战吗？')) {
+                    return;
+                }
+            }
+
+            currentLevel = level;
+            currentQuestion = 0;
+            levelScore = 0;
+
+            document.getElementById('levelsSection').style.display = 'none';
+            document.getElementById('gameArea').style.display = 'block';
+            document.getElementById('completion').style.display = 'none';
+
+            document.getElementById('gameTitle').textContent = levels[level].title;
+            document.getElementById('gameScore').textContent = '0';
+
+            showQuestion();
+        }
+
+        // 显示问题
+        function showQuestion() {
+            const level = levels[currentLevel];
+            const question = level.questions[currentQuestion];
+
+            document.getElementById('questionNumber').textContent = `第 ${currentQuestion + 1} 题`;
+            document.getElementById('questionText').textContent = question.question;
+            document.getElementById('questionHint').textContent = question.hint;
+
+            const optionsContainer = document.getElementById('options');
+            optionsContainer.innerHTML = '';
+
+            question.options.forEach((option, index) => {
+                const optionDiv = document.createElement('div');
+                optionDiv.className = 'option';
+                optionDiv.textContent = option;
+                optionDiv.onclick = () => checkAnswer(index);
+                optionsContainer.appendChild(optionDiv);
+            });
+
+            document.getElementById('feedback').style.display = 'none';
+            document.getElementById('nextBtn').style.display = 'none';
+
+            // 更新关卡卡片状态
+            updateLevelCardStatus(currentLevel, 'in-progress');
+        }
+
+        // 检查答案
+        function checkAnswer(selectedIndex) {
+            const level = levels[currentLevel];
+            const question = level.questions[currentQuestion];
+            const options = document.querySelectorAll('.option');
+            const feedback = document.getElementById('feedback');
+
+            // 禁用所有选项
+            options.forEach(option => {
+                option.classList.add('disabled');
+                option.onclick = null;
+            });
+
+            // 标记正确和错误选项
+            options[question.correct].classList.add('correct');
+            if (selectedIndex !== question.correct) {
+                options[selectedIndex].classList.add('wrong');
+            }
+
+            // 显示反馈
+            if (selectedIndex === question.correct) {
+                levelScore += 20;
+                feedback.className = 'feedback correct fade-in';
+                feedback.innerHTML = `✅ 正确！+20分<br><br>${question.explanation}`;
+            } else {
+                feedback.className = 'feedback wrong fade-in';
+                feedback.innerHTML = `❌ 错误！正确答案是：${question.options[question.correct]}<br><br>${question.explanation}`;
+            }
+
+            feedback.style.display = 'block';
+            document.getElementById('nextBtn').style.display = 'block';
+            document.getElementById('gameScore').textContent = levelScore;
+        }
+
+        // 下一题
+        function nextQuestion() {
+            const level = levels[currentLevel];
+            currentQuestion++;
+
+            if (currentQuestion < level.questions.length) {
+                showQuestion();
+            } else {
+                completeLevel();
+            }
+        }
+
+        // 完成关卡
+        function completeLevel() {
+            completedLevels.add(currentLevel);
+            totalScore += levelScore;
+
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('completion').style.display = 'block';
+
+            document.getElementById('completionScore').textContent = levelScore + '分';
+
+            const maxScore = levels[currentLevel].questions.length * 20;
+            const percentage = (levelScore / maxScore) * 100;
+
+            let message = '';
+            if (percentage === 100) {
+                message = '🏆 完美通关！你已经掌握了这个技能！';
+            } else if (percentage >= 80) {
+                message = '👏 表现优秀！继续加油！';
+            } else if (percentage >= 60) {
+                message = '👍 不错！但还有提升空间。';
+            } else {
+                message = '💪 继续练习，你会越来越熟练的！';
+            }
+
+            document.getElementById('completionMessage').textContent = message;
+
+            updateProgress();
+            updateTotalScore();
+            updateLevelCardStatus(currentLevel, 'completed');
+        }
+
+        // 更新关卡卡片状态
+        function updateLevelCardStatus(level, status) {
+            const cards = document.querySelectorAll('.level-card');
+            const card = cards[level - 1];
+            const statusDiv = card.querySelector('.level-status');
+
+            if (status === 'completed') {
+                statusDiv.className = 'level-status status-completed';
+                statusDiv.textContent = '✅ 已完成';
+            } else if (status === 'in-progress') {
+                statusDiv.className = 'level-status status-new';
+                statusDiv.textContent = '进行中...';
+            }
+        }
+
+        // 返回关卡选择
+        function backToLevels() {
+            document.getElementById('levelsSection').style.display = 'grid';
+            document.getElementById('gameArea').style.display = 'none';
+            document.getElementById('completion').style.display = 'none';
+        }
+
+        // 初始化游戏
+        init();
+    </script>
+</body>
+</html>
