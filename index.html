@@ -1272,6 +1272,18 @@
                 const key = normalizeKey(e.key);
                 pressedKeys.add(key);
                 highlightKey(key, true);
+
+                // 检查是否按了错误的键
+                const task = tasks[currentLevel]?.[currentTask];
+                if (task && task.type === 'keyboard') {
+                    const requiredKeys = task.keys;
+                    // 如果按的键不在必需的键中，且不是修饰键，可能是错误
+                    const isModifier = ['command', 'control', 'option', 'shift'].includes(key);
+                    if (!isModifier && !requiredKeys.includes(key)) {
+                        // 按了不需要的键，但不立即报错，等用户释放
+                    }
+                }
+
                 checkKeyboardTask();
             });
 
@@ -1440,10 +1452,32 @@
             const requiredKeys = task.keys;
             const allPressed = requiredKeys.every(key => pressedKeys.has(key));
 
-            if (allPressed && pressedKeys.size === requiredKeys.length) {
-                handleCorrect();
+            // 检查是否按了足够多的键
+            if (pressedKeys.size >= requiredKeys.length) {
+                if (allPressed && pressedKeys.size === requiredKeys.length) {
+                    // 按对了！
+                    handleCorrect();
+                } else {
+                    // 按错了（按了太多键或者按了错误的键）
+                    handleWrong();
+                    // 清除已按的键
+                    pressedKeys.clear();
+                    document.querySelectorAll('.key').forEach(k => k.classList.remove('active'));
+                }
             }
         }
+
+        // 监听键盘释放事件
+        document.addEventListener('keyup', (e) => {
+            const key = normalizeKey(e.key);
+            pressedKeys.delete(key);
+            highlightKey(key, false);
+
+            // 如果释放了所有键，检查是否应该触发错误
+            if (pressedKeys.size === 0) {
+                // 可以在这里添加额外的逻辑
+            }
+        });
 
         // 处理访达点击
         function handleFinderClick() {
